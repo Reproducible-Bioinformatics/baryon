@@ -7,12 +7,26 @@ import "encoding/xml"
 // You can find the current schema here:
 // https://docs.galaxyproject.org/en/master/dev/schema.html
 type Tool struct {
-	XMLName     xml.Name    `xml:"tool"`
-	Description Description `xml:"description"`
+	XMLName        xml.Name       `xml:"tool"`
+	Description    Description    `xml:"description"`
+	EdamTopics     EdamTopics     `xml:"edam_topics"`
+	EdamOperations EdamOperations `xml:"edam_operations"`
+	Xrefs          Xrefs          `xml:"xrefs"`
+	Creator        Creator        `xml:"creator"`
+	Requirements   Requirements   `xml:"requirements"`
+	Command        Command        `xml:"command"`
 }
 
+// The value is displayed in the tool menu immediately following the hyperlink
+// for the tool (based on the name attribute of the <tool> tag set described
+// above).
+//
+// https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-description
 type Description string
 
+// Container tag set for the <edam_topic> tags. A tool can have any number of EDAM topic references.
+//
+// https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-edam-topics
 type EdamTopics struct {
 	XMLName   xml.Name    `xml:"edam_topics"`
 	EdamTopic []EdamTopic `xml:"edam_topic"`
@@ -20,6 +34,10 @@ type EdamTopics struct {
 
 type EdamTopic string
 
+// Container tag set for the <edam_operation> tags. A tool can have any number
+// of EDAM operation references.
+//
+// https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-edam-operations
 type EdamOperations struct {
 	XMLName       xml.Name        `xml:"edam_operations"`
 	EdamOperation []EdamOperation `xml:"edam_operation"`
@@ -27,25 +45,95 @@ type EdamOperations struct {
 
 type EdamOperation string
 
+// Container tag set for the <xref> tags. A tool can refer multiple reference IDs.
+//
+// https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-xrefs
 type Xrefs struct {
 	XMLName xml.Name `xml:"xrefs"`
 	Xref    []Xref   `xml:"xref"`
 }
 
+// The xref element specifies reference information according to a catalog.
+//
+// https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-xrefs-xref
 type Xref struct {
 	XMLName xml.Name `xml:"xref"`
-	Type    string   `xml:"type,attr"`
+	// Type of reference - currently bio.tools, bioconductor, and biii
+	// are the only supported options.
+	Type  string `xml:"type,attr"`
+	Value string `xml:",chardata"`
 }
 
+// The creator(s) of this work. See schema.org/creator.
+//
+// https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-creator
 type Creator struct {
-	XMLName xml.Name `xml:"creator"`
-	Person  Person   `xml:"person"`
+	XMLName      xml.Name     `xml:"creator"`
+	Person       Person       `xml:"person,omitempty"`
+	Organization Organization `xml:"organization,omitempty"`
 }
 
+// Describes a person. Tries to stay close to schema.org/Person.
+//
+// https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-creator-person
 type Person struct {
 	XMLName xml.Name `xml:"person"`
 	Name    string   `xml:"name"`
-	// TODO: Add other fields.
 }
 
-// TODO: Add organization.
+// Describes an organization. Tries to stay close to schema.org/Organization.
+//
+// https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-creator-organization
+type Organization struct {
+	XMLName xml.Name `xml:"organization"`
+	Name    string   `xml:"name"`
+}
+
+// This is a container tag set for the requirement, resource and container tags
+// described in greater detail below. requirements describe software packages
+// and other individual computing requirements required to execute a tool,
+// while containers describe Docker or Singularity containers that should be
+// able to serve as complete descriptions of the runtime of a tool.
+//
+// https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-requirements
+type Requirements struct {
+	XMLName     xml.Name      `xml:"requirements"`
+	Requirement []Requirement `xml:"requirement,omitempty"`
+	Container   Container     `xml:"container,omitempty"`
+}
+
+// This tag set is contained within the <requirements> tag set. Third party
+// programs or modules that the tool depends upon are included in this tag set.
+//
+// When a tool runs, Galaxy attempts to resolve these requirements (also called
+// dependencies). requirements are meant to be abstract and resolvable by
+// multiple different dependency resolvers (e.g. conda, the Galaxy Tool Shed
+// dependency management system, or environment modules).
+//
+// https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-requirements-requirement
+type Requirement struct {
+	XMLName xml.Name `xml:"requirement"`
+	Type    string   `xml:"type,attr"`
+	Version string   `xml:"version,attr"`
+}
+
+// This tag set is contained within the ‘requirements’ tag set. Galaxy can be
+// configured to run tools within Docker or Singularity containers - this tag
+// allows the tool to suggest possible valid containers for this tool.
+//
+// https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-requirements-container
+type Container struct {
+	XMLName xml.Name `xml:"container"`
+	Type    string   `xml:"type,attr"`
+	Value   string   `xml:",chardata"`
+}
+
+// This tag specifies how Galaxy should invoke the tool’s executable, passing
+// its required input parameter values (the command line specification links
+// the parameters supplied in the form with the actual tool executable).
+//
+// https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-command
+type Command struct {
+	XMLName xml.Name `xml:"command"`
+	Value   string   `xml:",cdata"`
+}
