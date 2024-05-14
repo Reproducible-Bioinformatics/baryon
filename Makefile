@@ -5,3 +5,6 @@ baryon: clean
 
 clean:
 	rm -rf ${BIN}
+
+test:
+	go test -cover ./...
