@@ -9,10 +9,10 @@ import "encoding/xml"
 type Tool struct {
 	XMLName        xml.Name       `xml:"tool"`
 	Description    Description    `xml:"description"`
-	EdamTopics     EdamTopics     `xml:"edam_topics"`
-	EdamOperations EdamOperations `xml:"edam_operations"`
-	Xrefs          Xrefs          `xml:"xrefs"`
-	Creator        Creator        `xml:"creator"`
+	EdamTopics     EdamTopics     `xml:"edam_topics,omitempty"`
+	EdamOperations EdamOperations `xml:"edam_operations,omitempty"`
+	Xrefs          Xrefs          `xml:"xrefs,omitempty"`
+	Creator        Creator        `xml:"creator,omitempty"`
 	Requirements   Requirements   `xml:"requirements"`
 	Command        Command        `xml:"command"`
 }
@@ -24,12 +24,13 @@ type Tool struct {
 // https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-description
 type Description string
 
-// Container tag set for the <edam_topic> tags. A tool can have any number of EDAM topic references.
+// Container tag set for the <edam_topic> tags. A tool can have any number of
+// EDAM topic references.
 //
 // https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-edam-topics
 type EdamTopics struct {
-	XMLName   xml.Name    `xml:"edam_topics"`
-	EdamTopic []EdamTopic `xml:"edam_topic"`
+	XMLName   xml.Name    `xml:"edam_topics,omitempty"`
+	EdamTopic []EdamTopic `xml:"edam_topic,omitempty"`
 }
 
 type EdamTopic string
@@ -45,7 +46,8 @@ type EdamOperations struct {
 
 type EdamOperation string
 
-// Container tag set for the <xref> tags. A tool can refer multiple reference IDs.
+// Container tag set for the <xref> tags. A tool can refer multiple reference
+// IDs.
 //
 // https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-xrefs
 type Xrefs struct {
@@ -68,7 +70,7 @@ type Xref struct {
 //
 // https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-creator
 type Creator struct {
-	XMLName      xml.Name     `xml:"creator"`
+	XMLName      xml.Name     `xml:"creator,omitempty"`
 	Person       Person       `xml:"person,omitempty"`
 	Organization Organization `xml:"organization,omitempty"`
 }
@@ -77,16 +79,16 @@ type Creator struct {
 //
 // https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-creator-person
 type Person struct {
-	XMLName xml.Name `xml:"person"`
-	Name    string   `xml:"name"`
+	XMLName xml.Name `xml:"person,omitempty"`
+	Name    string   `xml:"name,omitempty"`
 }
 
 // Describes an organization. Tries to stay close to schema.org/Organization.
 //
 // https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-creator-organization
 type Organization struct {
-	XMLName xml.Name `xml:"organization"`
-	Name    string   `xml:"name"`
+	XMLName xml.Name `xml:"organization,omitempty"`
+	Name    string   `xml:"name,omitempty"`
 }
 
 // This is a container tag set for the requirement, resource and container tags
