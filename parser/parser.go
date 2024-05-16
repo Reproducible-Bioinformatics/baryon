@@ -7,15 +7,15 @@ type Parser interface {
 	Parse([]byte) (*tool.Tool, error)
 }
 
-// rlangDocParser implements the functions to parse R function documentation
+// roxygen implements the functions to parse R function documentation
 // and obtain a Galaxy Tool.
-type rlangDocParser struct{}
+type roxygen struct{}
 
-// NewRlangDocParser returns a New rlangDocParser.
-func NewRlangDocParser() *rlangDocParser {
-	return &rlangDocParser{}
+// NewRoxygen returns a New roxygen.
+func NewRoxygen() *roxygen {
+	return &roxygen{}
 }
 
-func (*rlangDocParser) Parse(in []byte) (*tool.Tool, error) {
+func (*roxygen) Parse(in []byte) (*tool.Tool, error) {
 	return &tool.Tool{}, nil
 }
