@@ -29,7 +29,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	output, err := xml.Marshal(tool)
+	output, err := xml.MarshalIndent(tool, "", "\t")
 	if err != nil {
 		log.Fatal(err)
 	}
