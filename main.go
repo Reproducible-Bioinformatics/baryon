@@ -1,6 +1,10 @@
 package main
 
 import (
+	"baryon/parser"
+	"encoding/xml"
+	"fmt"
+	"io"
 	"log"
 	"os"
 )
@@ -11,11 +15,25 @@ func main() {
 	if len(argsWithoutProg) > 0 {
 		filePath = argsWithoutProg[0]
 	}
+	parser := parser.NewRlangDocParser()
 	file, err := getFile(filePath)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer file.Close()
+	fileread, err := io.ReadAll(file)
+	if err != nil {
+		log.Fatal(err)
+	}
+	tool, err := parser.Parse(fileread)
+	if err != nil {
+		log.Fatal(err)
+	}
+	output, err := xml.Marshal(tool)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Print(string(output))
 }
 
 // getFile retrieves a *os.File if a path is provided and is not empty.
