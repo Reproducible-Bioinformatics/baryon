@@ -15,7 +15,7 @@ func main() {
 	if len(argsWithoutProg) > 0 {
 		filePath = argsWithoutProg[0]
 	}
-	parser := parser.NewRlangDocParser()
+	parser := parser.NewRoxygen()
 	file, err := getFile(filePath)
 	if err != nil {
 		log.Fatal(err)
