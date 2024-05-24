@@ -27,6 +27,12 @@ func (*roxygen) Parse(in []byte) (*tool.Tool, error) {
 	return &outtool, nil
 }
 
+var parser = regexp.MustCompile(`@[^@]+`)
+
+func parseCommentLines(input string) []string {
+	return parser.FindAllString(input, -1)
+}
+
 // Obtains the roxygen comment form the input "in".
 func obtainComment(in []byte) string {
 	var commentLines string
