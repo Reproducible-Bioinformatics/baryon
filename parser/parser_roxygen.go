@@ -22,15 +22,13 @@ func (*roxygen) Parse(in []byte) (*tool.Tool, error) {
 	if len(comment) == 0 {
 		return nil, fmt.Errorf("Cannot parse roxygen comment.")
 	}
-	commentLines := strings.Split(comment, "\n")
-	outtool.Description = tool.Description(commentLines[0])
 	return &outtool, nil
 }
 
-var parser = regexp.MustCompile(`@[^@]+`)
+var commentEntryRegex = regexp.MustCompile(`@[^@]+`)
 
-func parseCommentLines(input string) []string {
-	return parser.FindAllString(input, -1)
+func getCommentEntries(input string) []string {
+	return commentEntryRegex.FindAllString(input, -1)
 }
 
 // Obtains the roxygen comment form the input "in".
