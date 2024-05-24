@@ -7,8 +7,13 @@ import "encoding/xml"
 // You can find the current schema here:
 // https://docs.galaxyproject.org/en/master/dev/schema.html
 type Tool struct {
-	XMLName        xml.Name       `xml:"tool"`
-	Description    Description    `xml:"description"`
+	XMLName xml.Name `xml:"tool"`
+	// The value is displayed in the tool menu immediately following the hyperlink
+	// for the tool (based on the name attribute of the <tool> tag set described
+	// above).
+	//
+	// https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-description
+	Description    string         `xml:"description"`
 	EdamTopics     EdamTopics     `xml:"edam_topics,omitempty"`
 	EdamOperations EdamOperations `xml:"edam_operations,omitempty"`
 	Xrefs          Xrefs          `xml:"xrefs,omitempty"`
@@ -16,13 +21,6 @@ type Tool struct {
 	Requirements   Requirements   `xml:"requirements"`
 	Command        Command        `xml:"command"`
 }
-
-// The value is displayed in the tool menu immediately following the hyperlink
-// for the tool (based on the name attribute of the <tool> tag set described
-// above).
-//
-// https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-description
-type Description string
 
 // Container tag set for the <edam_topic> tags. A tool can have any number of
 // EDAM topic references.
@@ -71,7 +69,7 @@ type Xref struct {
 // https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-creator
 type Creator struct {
 	XMLName      xml.Name     `xml:"creator,omitempty"`
-	Person       Person       `xml:"person,omitempty"`
+	Person       []Person     `xml:"person,omitempty"`
 	Organization Organization `xml:"organization,omitempty"`
 }
 

@@ -22,7 +22,36 @@ func (*roxygen) Parse(in []byte) (*tool.Tool, error) {
 	if len(comment) == 0 {
 		return nil, fmt.Errorf("Cannot parse roxygen comment.")
 	}
+	commentEntries := getCommentEntries(comment)
+	for _, commentEntry := range commentEntries {
+		split := strings.Split(commentEntry, " ")
+		if len(split) > 0 {
+			keyword := strings.TrimLeft(split[0], "@")
+			if matcher, ok := act[keyword]; ok {
+				matcher(strings.Join(split[1:], " "), &outtool)
+			}
+		}
+	}
 	return &outtool, nil
+}
+
+type Actor func(string, *tool.Tool)
+
+// act serves as the entrypoint to parse a roxygen comment entry.
+// it provides a set of functions, parsing each field.
+// Implementation is dependent on the field.
+var act map[string]Actor = map[string]Actor{
+	"description": func(content string, tool *tool.Tool) {
+		tool.Description = content
+	},
+	"author": func(content string, t *tool.Tool) {
+		for _, name := range strings.Split(content, ",") {
+			t.Creator.Person = append(
+				t.Creator.Person, tool.Person{
+					Name: strings.TrimSpace(name),
+				})
+		}
+	},
 }
 
 var commentEntryRegex = regexp.MustCompile(`@[^@]+`)
