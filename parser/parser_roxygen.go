@@ -41,11 +41,14 @@ type Actor func(string, *tool.Tool)
 // it provides a set of functions, parsing each field.
 // Implementation is dependent on the field.
 var act map[string]Actor = map[string]Actor{
-	"description": func(content string, tool *tool.Tool) {
-		tool.Description = content
+	"description": func(content string, t *tool.Tool) {
+		t.Description = content
 	},
 	"author": func(content string, t *tool.Tool) {
 		for _, name := range strings.Split(content, ",") {
+			if t.Creator == nil {
+				t.Creator = &tool.Creator{}
+			}
 			t.Creator.Person = append(
 				t.Creator.Person, tool.Person{
 					Name: strings.TrimSpace(name),
@@ -54,8 +57,10 @@ var act map[string]Actor = map[string]Actor{
 	},
 }
 
+// Regex to obtain a comment entry.
 var commentEntryRegex = regexp.MustCompile(`@[^@]+`)
 
+// Get all entries from a comment.
 func getCommentEntries(input string) []string {
 	return commentEntryRegex.FindAllString(input, -1)
 }
