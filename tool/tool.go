@@ -13,13 +13,13 @@ type Tool struct {
 	// above).
 	//
 	// https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-description
-	Description    string         `xml:"description"`
-	EdamTopics     EdamTopics     `xml:"edam_topics,omitempty"`
-	EdamOperations EdamOperations `xml:"edam_operations,omitempty"`
-	Xrefs          Xrefs          `xml:"xrefs,omitempty"`
-	Creator        Creator        `xml:"creator,omitempty"`
-	Requirements   Requirements   `xml:"requirements"`
-	Command        Command        `xml:"command"`
+	Description    string          `xml:"description"`
+	EdamTopics     *EdamTopics     `xml:"edam_topics,omitempty"`
+	EdamOperations *EdamOperations `xml:"edam_operations,omitempty"`
+	Xrefs          *Xrefs          `xml:"xrefs,omitempty"`
+	Creator        *Creator        `xml:"creator,omitempty"`
+	Requirements   *Requirements   `xml:"requirements"`
+	Command        *Command        `xml:"command"`
 }
 
 // Container tag set for the <edam_topic> tags. A tool can have any number of
@@ -68,9 +68,9 @@ type Xref struct {
 //
 // https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-creator
 type Creator struct {
-	XMLName      xml.Name     `xml:"creator,omitempty"`
-	Person       []Person     `xml:"person,omitempty"`
-	Organization Organization `xml:"organization,omitempty"`
+	XMLName      xml.Name      `xml:"creator,omitempty"`
+	Person       []Person      `xml:"person,omitempty"`
+	Organization *Organization `xml:"organization,omitempty"`
 }
 
 // Describes a person. Tries to stay close to schema.org/Person.
@@ -99,7 +99,7 @@ type Organization struct {
 type Requirements struct {
 	XMLName     xml.Name      `xml:"requirements"`
 	Requirement []Requirement `xml:"requirement,omitempty"`
-	Container   Container     `xml:"container,omitempty"`
+	Container   *Container    `xml:"container,omitempty"`
 }
 
 // This tag set is contained within the <requirements> tag set. Third party
