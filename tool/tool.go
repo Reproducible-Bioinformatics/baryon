@@ -20,6 +20,7 @@ type Tool struct {
 	Creator        *Creator        `xml:"creator,omitempty"`
 	Requirements   *Requirements   `xml:"requirements"`
 	Command        *Command        `xml:"command"`
+	Inputs         *Inputs         `xml:"inputs"`
 }
 
 // Container tag set for the <edam_topic> tags. A tool can have any number of
@@ -136,4 +137,30 @@ type Container struct {
 type Command struct {
 	XMLName xml.Name `xml:"command"`
 	Value   string   `xml:",cdata"`
+}
+
+// Consists of all elements that define the tool’s input parameters.
+//
+// https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-inputs
+type Inputs struct {
+	XMLName xml.Name `xml:"inputs"`
+	Param   []Param  `xml:"param"`
+}
+
+// Contained within the <inputs> tag set - each of these specifies a field that
+// will be displayed on the tool form. Ultimately, the values of these form
+// fields will be passed as the command line parameters to the tool’s
+// executable.
+//
+// https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-inputs-param
+type Param struct {
+	XMLName         xml.Name `xml:"param"`
+	Type            string   `xml:"type"`
+	Name            string   `xml:"name"`
+	Value           string   `xml:"value"`
+	Argument        string   `xml:"argument"`
+	Label           string   `xml:"label"`
+	Help            string   `xml:"help"`
+	Optional        bool     `xml:"optional"`
+	RefreshOnChange bool     `xml:"refresh_on_change"`
 }
