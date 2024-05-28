@@ -50,9 +50,13 @@ var act map[string]Actor = map[string]Actor{
 		if len(splitString) == 0 {
 			return
 		}
+
+		// Processing of the name variable according to Galaxy's specs.
+		name := splitString[0]
+		name = strings.ReplaceAll(name, ".", "__") // Replaces "." with "__".
 		t.Inputs.Param = append(t.Inputs.Param, tool.Param{
 			// First element is the name of the param.
-			Name: splitString[0],
+			Name: name,
 			// Help is the other part of the string.
 			Help: strings.Join(splitString[1:], " "),
 		})
