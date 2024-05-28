@@ -41,6 +41,22 @@ type Actor func(string, *tool.Tool)
 // it provides a set of functions, parsing each field.
 // Implementation is dependent on the field.
 var act map[string]Actor = map[string]Actor{
+	"param": func(s string, t *tool.Tool) {
+		if t.Inputs == nil {
+			t.Inputs = &tool.Inputs{}
+		}
+		// TODO: parse all comment
+		splitString := strings.Split(s, " ")
+		if len(splitString) == 0 {
+			return
+		}
+		t.Inputs.Param = append(t.Inputs.Param, tool.Param{
+			// First element is the name of the param.
+			Name: splitString[0],
+			// Help is the other part of the string.
+			Help: strings.Join(splitString[1:], " "),
+		})
+	},
 	"description": func(content string, t *tool.Tool) {
 		t.Description = content
 	},
