@@ -50,15 +50,24 @@ var act map[string]Actor = map[string]Actor{
 		if len(splitString) == 0 {
 			return
 		}
-
 		// Processing of the name variable according to Galaxy's specs.
 		name := splitString[0]
-		name = strings.ReplaceAll(name, ".", "__") // Replaces "." with "__".
+		name = strings.Replace(name, ".", "__", -1) // Replaces "." with "__".
+
+		help := strings.Join(splitString[1:], " ")
+
+		// Start processing baryon instructions.
+		baryonInstruction := baryonNamespaceRegex.FindString(help)
+
+		// Processing of the help string according to Galaxy's specs.
+		help = strings.Replace(help, baryonInstruction, "", -1)
+		help = strings.TrimSpace(help)
+
 		t.Inputs.Param = append(t.Inputs.Param, tool.Param{
 			// First element is the name of the param.
 			Name: name,
 			// Help is the other part of the string.
-			Help: strings.Join(splitString[1:], " "),
+			Help: help,
 		})
 	},
 	"description": func(content string, t *tool.Tool) {
@@ -76,6 +85,8 @@ var act map[string]Actor = map[string]Actor{
 		}
 	},
 }
+
+var baryonNamespaceRegex = regexp.MustCompile(`\$B{([^}]*)}`)
 
 // Regex to obtain a comment entry.
 var commentEntryRegex = regexp.MustCompile(`@[^@]+`)
