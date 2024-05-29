@@ -45,7 +45,6 @@ var act map[string]Actor = map[string]Actor{
 		if t.Inputs == nil {
 			t.Inputs = &tool.Inputs{}
 		}
-		// TODO: parse all comment
 		splitString := strings.Split(s, " ")
 		if len(splitString) == 0 {
 			return
