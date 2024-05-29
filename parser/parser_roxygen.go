@@ -56,18 +56,25 @@ var act map[string]Actor = map[string]Actor{
 		help := strings.Join(splitString[1:], " ")
 
 		// Start processing baryon instructions.
-		baryonInstruction := baryonNamespaceRegex.FindString(help)
+		baryonInstruction := baryonNamespaceRegex.FindStringSubmatch(help)
 
 		// Processing of the help string according to Galaxy's specs.
-		help = strings.Replace(help, baryonInstruction, "", -1)
+		if len(baryonInstruction) > 0 {
+			help = strings.Replace(help, baryonInstruction[0], "", -1)
+		}
 		help = strings.TrimSpace(help)
 
-		t.Inputs.Param = append(t.Inputs.Param, tool.Param{
-			// First element is the name of the param.
+		newParam := tool.Param{
 			Name: name,
-			// Help is the other part of the string.
 			Help: help,
-		})
+		}
+
+		// Matched inside Baryon namespace.
+		if len(baryonInstruction) > 1 {
+			parseInstruction(&newParam, baryonInstruction[1])
+		}
+
+		t.Inputs.Param = append(t.Inputs.Param, newParam)
 	},
 	"description": func(content string, t *tool.Tool) {
 		t.Description = content
@@ -115,4 +122,12 @@ var roxygenLineRegex = regexp.MustCompile("^#' ?(.*)")
 func isRoxygenLine(line string) (bool, []string) {
 	submatches := roxygenLineRegex.FindStringSubmatch(line)
 	return len(submatches) > 0, submatches
+}
+
+// Parse instruction into a tool.Param.
+func parseInstruction(t *tool.Param, instruction string) {
+	instructions := strings.Split(instruction, ";")
+	for _, instruction := range instructions {
+		fmt.Printf("%s\n", instruction)
+	}
 }
