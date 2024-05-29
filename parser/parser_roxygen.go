@@ -124,10 +124,28 @@ func isRoxygenLine(line string) (bool, []string) {
 	return len(submatches) > 0, submatches
 }
 
+var instructionParsers map[string]func(
+	*tool.Param, string) = map[string]func(*tool.Param, string){
+	"!":        func(t *tool.Param, arg string) { t.Optional = false },
+	"required": func(t *tool.Param, arg string) { t.Optional = false },
+	"type": func(t *tool.Param, arg string) {
+		t.Type = arg
+	},
+}
+
+var instructionRegex = regexp.MustCompile(`((?:[[:alnum:]]|!)+)(?:\(([^)]*)|)`)
+
 // Parse instruction into a tool.Param.
 func parseInstruction(t *tool.Param, instruction string) {
 	instructions := strings.Split(instruction, ";")
 	for _, instruction := range instructions {
-		fmt.Printf("%s\n", instruction)
+		instruction = strings.TrimSpace(instruction)
+		match := instructionRegex.FindStringSubmatch(instruction)
+		if len(match) < 3 {
+			continue
+		}
+		if parser, ok := instructionParsers[match[1]]; ok {
+			parser(t, match[2])
+		}
 	}
 }
