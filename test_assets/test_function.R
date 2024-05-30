@@ -1,12 +1,17 @@
 #' @title name
 #' @description The present function create pseudo-bulk matrix from clustering.output file. The output are three files: _bulklog2, which is not normalized, _bulkColumn, which is z-scoere calculated over each column, _bulkRow, which is z-score calculated over each row
 #' @param group a character string. Two options: sudo or docker, depending to which group the user belongs
-#' $B{!;type(string);options(sudo,docker);}
-#' @param scratch.folderDOCKER a character string indicating the path of the scratch folder inside the docker
-#' @param scratch.folderHOST a character string indicating the path of the scratch folder inside the host. If not running from docker, this is the character string that indicates the path of the scratch.folder
-#' @param file a character string indicating the path of the file, with file name and extension included
-#' @param cl name and path of the file clustering.output previously generated from clustering algorithm from rcasc
-#' @param separator matrix separator, ',', '\\t'
+#' $B{
+#'		!;
+#'		type(text);
+#'		options(sudo,
+#' docker);
+#'		value(sudo);
+#'	}
+#' @param another Lorem ipsum dolor sit amet.
+#' $B{type(integer);value(123);!}
+#'
+#'
 #' @author Lorem Ipsum, Dolor Sit Amet, Lorem Sentence
 #'
 #' @examples
