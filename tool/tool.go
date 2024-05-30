@@ -1,6 +1,12 @@
 package tool
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"fmt"
+)
+
+// Validable represents a validable object.
+type Validable interface{ Validate() error }
 
 // Tool provides a representation of a Galaxy Tool xml file schema.
 //
@@ -156,11 +162,48 @@ type Inputs struct {
 type Param struct {
 	XMLName         xml.Name `xml:"param"`
 	Type            string   `xml:"type"`
-	Name            string   `xml:"name"`
-	Value           string   `xml:"value"`
-	Argument        string   `xml:"argument"`
-	Label           string   `xml:"label"`
-	Help            string   `xml:"help"`
-	Optional        bool     `xml:"optional"`
-	RefreshOnChange bool     `xml:"refresh_on_change"`
+	Name            string   `xml:"name,omitempty"`
+	Value           string   `xml:"value,omitempty"`
+	Options         []Option `xml:"option"`
+	Argument        string   `xml:"argument,omitempty"`
+	Label           string   `xml:"label,omitempty"`
+	Help            string   `xml:"help,omitempty"`
+	Optional        bool     `xml:"optional,omitempty"`
+	RefreshOnChange bool     `xml:"refresh_on_change,omitempty"`
+}
+
+// https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-inputs-param-option
+type Option struct {
+	XMLName       xml.Name `xml:"option"`
+	Value         string   `xml:"value,attr"`
+	CanonicalName string   `xml:",innerxml"`
+}
+
+// Implements Validable.
+func (p Param) Validate() error {
+	var allowedType map[string]struct{} = map[string]struct{}{
+		"text":            {},
+		"integer":         {},
+		"float":           {},
+		"boolean":         {},
+		"genomebuild":     {},
+		"select":          {},
+		"color":           {},
+		"data_column":     {},
+		"hidden":          {},
+		"hidden_data":     {},
+		"baseurl":         {},
+		"file":            {},
+		"ftpfile":         {},
+		"data":            {},
+		"data_collection": {},
+		"drill_down":      {},
+	}
+	if _, ok := allowedType[p.Type]; !ok {
+		return fmt.Errorf("Type \"%s\" is not an allowed type.", p.Type)
+	}
+	if !p.Optional && p.Value == "" {
+		return fmt.Errorf("Non optional parameter has no value specified.")
+	}
+	return nil
 }
