@@ -142,6 +142,9 @@ var instructionParsers map[string]func(
 	"options": func(t *tool.Param, arg string) {
 		for _, entry := range strings.Split(arg, ",") {
 			trimmedSpace := strings.TrimSpace(entry)
+			if trimmedSpace == "" {
+				continue
+			}
 			t.Options = append(t.Options, tool.Option{
 				Value:         trimmedSpace,
 				CanonicalName: trimmedSpace, // TODO: Issue #4.
@@ -150,7 +153,7 @@ var instructionParsers map[string]func(
 	},
 }
 
-var instructionRegex = regexp.MustCompile(`((?:[[:alnum:]]|!)+)(?:\(([^)]*)|)`)
+var instructionRegex = regexp.MustCompile(`((?:[[:alpha:]]|!)+)\ *(?:\(([^)]*)|)`)
 
 // Parse instruction into a tool.Param.
 func parseInstruction(t *tool.Param, instruction string) {
