@@ -28,31 +28,33 @@ func (*roxygen) Parse(in []byte) (*tool.Tool, error) {
 		if len(split) > 0 {
 			keyword := strings.TrimLeft(split[0], "@")
 			if matcher, ok := act[keyword]; ok {
-				matcher(strings.Join(split[1:], " "), &outtool)
+				err := matcher(strings.Join(split[1:], " "), &outtool)
+				if err != nil {
+					log.Fatal(err)
+				}
 			}
 		}
 	}
 	return &outtool, nil
 }
 
-type Actor func(string, *tool.Tool)
+type Actor func(string, *tool.Tool) error
 
 // act serves as the entrypoint to parse a roxygen comment entry.
 // it provides a set of functions, parsing each field.
 // Implementation is dependent on the field.
 var act map[string]Actor = map[string]Actor{
-	"param": func(s string, t *tool.Tool) {
+	"param": func(s string, t *tool.Tool) error {
 		if t.Inputs == nil {
 			t.Inputs = &tool.Inputs{}
 		}
 		splitString := strings.Split(s, " ")
 		if len(splitString) == 0 {
-			return
+			return nil
 		}
 		// Processing of the name variable according to Galaxy's specs.
 		name := splitString[0]
 		name = strings.Replace(name, ".", "__", -1) // Replaces "." with "__".
-
 		help := strings.Join(splitString[1:], " ")
 
 		// Start processing baryon instructions.
@@ -65,21 +67,26 @@ var act map[string]Actor = map[string]Actor{
 		help = strings.TrimSpace(help)
 
 		newParam := tool.Param{
-			Name: name,
-			Help: help,
+			Name:     name,
+			Help:     help,
+			Optional: true,
 		}
-
 		// Matched inside Baryon namespace.
 		if len(baryonInstruction) > 1 {
 			parseInstruction(&newParam, baryonInstruction[1])
 		}
-
+		err := newParam.Validate()
+		if err != nil {
+			return fmt.Errorf("Error in act.param: %v", err)
+		}
 		t.Inputs.Param = append(t.Inputs.Param, newParam)
+		return nil
 	},
-	"description": func(content string, t *tool.Tool) {
+	"description": func(content string, t *tool.Tool) error {
 		t.Description = content
+		return nil
 	},
-	"author": func(content string, t *tool.Tool) {
+	"author": func(content string, t *tool.Tool) error {
 		for _, name := range strings.Split(content, ",") {
 			if t.Creator == nil {
 				t.Creator = &tool.Creator{}
@@ -89,6 +96,7 @@ var act map[string]Actor = map[string]Actor{
 					Name: strings.TrimSpace(name),
 				})
 		}
+		return nil
 	},
 }
 
