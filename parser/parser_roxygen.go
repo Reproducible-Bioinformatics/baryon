@@ -3,6 +3,7 @@ package parser
 import (
 	"baryon/tool"
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
 )
@@ -136,8 +137,16 @@ var instructionParsers map[string]func(
 	*tool.Param, string) = map[string]func(*tool.Param, string){
 	"!":        func(t *tool.Param, arg string) { t.Optional = false },
 	"required": func(t *tool.Param, arg string) { t.Optional = false },
-	"type": func(t *tool.Param, arg string) {
-		t.Type = arg
+	"type":     func(t *tool.Param, arg string) { t.Type = arg },
+	"value":    func(t *tool.Param, arg string) { t.Value = arg },
+	"options": func(t *tool.Param, arg string) {
+		for _, entry := range strings.Split(arg, ",") {
+			trimmedSpace := strings.TrimSpace(entry)
+			t.Options = append(t.Options, tool.Option{
+				Value:         trimmedSpace,
+				CanonicalName: trimmedSpace, // TODO: Issue #4.
+			})
+		}
 	},
 }
 
