@@ -28,3 +28,15 @@ func Test_IsRoxygenLine(t *testing.T) {
 		}
 	}
 }
+
+func Test_RoxygenParse(t *testing.T) {
+	rp := NewRoxygen()
+	_, err := rp.Parse([]byte("#'"))
+	if err != nil {
+		t.Errorf("Got this error: %v", err)
+	}
+	_, err = rp.Parse([]byte(""))
+	if err == nil {
+		t.Errorf("Expected error.")
+	}
+}
