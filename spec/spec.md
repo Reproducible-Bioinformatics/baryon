@@ -1,13 +1,13 @@
 # Baryon Specification
 
- The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
+The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
 NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED",
 "MAY", and "OPTIONAL" in this document are to be interpreted as
 described in BCP 14 [RFC2119](https://www.ietf.org/rfc/rfc2119.txt)
 [RFC8174](https://www.ietf.org/rfc/rfc8174.txt) when, and only when, they
 appear in all capitals, as shown here.
 
-Baryon MUST follow the R documentation standard but provides an augmentation
+Baryon follows the R documentation standard but provides an augmentation
 layer to provide context for [Galaxy's Tools](https://galaxyproject.org).
 
 To find more information about documenting your R functions, please refer
@@ -30,29 +30,35 @@ Prefix
 
 Specific instruction for Baryon MUST live inside the Baryon Namespace.
 Each roxygen2 tag MAY contain (at most) one Baryon Namespace.
-Subsequent Baryon Namespaces will be ignored.
+Subsequent Baryon Namespaces will be ignored. It's NOT RECOMMENDED to have
+multiple Baryon Namespaces for a single roxygen2 tag.
 
-Instruction inside a Baryon Namespace are separated by a semicolon `;`.
-White spaces that might occur before or after an instruction are ignored.
+Instruction inside a Baryon Namespace MUST be separated by a semicolon `;`.
+Whitespace that might occur before or after an instruction is ignored.
 The last instruction MAY have a delimiting semicolon.
 Baryon Namespaces including only one instruction MAY have a delimiting
 semicolon.
 
-A Baryon Instruction MUST BE a sequence of alphabetical characters or the `!`
-special character, and, MAY have an argument (or a list of arguments).
+A Baryon Instruction MUST be a sequence of alphabetical characters or MUST
+be the `!` special character, and, MAY have an argument (or a list of
+arguments).
 
 The high level Baryon Specification doesn't specify how arguments must be
 subdivided and relegates this definition to the specific implementation of
-an instruction. Although, the norm is to have a comma-separated list.
+an instruction. Although, it is RECOMMENDED to have a comma-separated list.
 
 Instruction may override previous instructions and are applied in a
 first-come-first-serve fashion.
+It is NOT RECOMMENDED to have the same instruction repeated in the same Baryon
+Namespace.
 
 ## Instructions
 
 ### required
 
-`required` instruction tags a parameter as required. You MAY use its alias: `!`.
+`required` instruction tags a parameter as required.
+
+Alias: `!`.
 
 Example(s):
 ```
@@ -65,9 +71,10 @@ $B{!}
 
 `type` instructions tags a parameter with its expected type.
 Accepts a parameter.
-Possible values are: text, integer, float, boolean, genomebuild, select, color,
-data_column, hidden, hidden_data, baseurl, file, ftpfile, data,
-data_collection, drill_down.
+
+Possible values are: `text`, `integer`, `float`, `boolean`, `genomebuild`,
+`select`, `color`, `data_column`, `hidden`, `hidden_data`, `baseurl`, `file`,
+`ftpfile`, `data`, `data_collection`, `drill_down`.
 
 Example(s):
 ```
@@ -88,7 +95,7 @@ $B{value(a random string)}
 
 `options` instructions tags a parameter with its possible options.
 Accepts a parameter list.
-The last element MAY have a comma delimiter.
+The last element MAY have a delimiting comma.
 
 Example(s):
 ```
