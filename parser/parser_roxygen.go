@@ -28,11 +28,13 @@ func (*roxygen) Parse(in []byte) (*tool.Tool, error) {
 		split := strings.Split(commentEntry, " ")
 		if len(split) > 0 {
 			keyword := strings.TrimLeft(split[0], "@")
-			if matcher, ok := act[keyword]; ok {
-				err := matcher(strings.Join(split[1:], " "), &outtool)
-				if err != nil {
-					log.Fatal(err)
-				}
+			matcher, ok := act[keyword]
+			if !ok {
+				continue
+			}
+			err := matcher(strings.Join(split[1:], " "), &outtool)
+			if err != nil {
+				log.Fatal(err)
 			}
 		}
 	}
@@ -168,8 +170,10 @@ func parseInstruction(t *tool.Param, instruction string) {
 		if len(match) < 3 {
 			continue
 		}
-		if parser, ok := paramIstructions[match[1]]; ok {
-			parser(t, match[2])
+		parser, ok := paramIstructions[match[1]]
+		if !ok {
+			continue
 		}
+		parser(t, match[2])
 	}
 }
