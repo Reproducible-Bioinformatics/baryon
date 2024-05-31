@@ -133,8 +133,12 @@ func isRoxygenLine(line string) (bool, []string) {
 	return len(submatches) > 0, submatches
 }
 
-var instructionParsers map[string]func(
-	*tool.Param, string) = map[string]func(*tool.Param, string){
+// ParamFunction used to provide functions for Baryon Namespaces used inside
+// roxygen2 params.
+type ParamFunction func(*tool.Param, string)
+
+// paramIstructions is a map of function used to when parsing a roxygen2 param.
+var paramIstructions map[string]ParamFunction = map[string]ParamFunction{
 	"!":        func(t *tool.Param, arg string) { t.Optional = false },
 	"required": func(t *tool.Param, arg string) { t.Optional = false },
 	"type":     func(t *tool.Param, arg string) { t.Type = arg },
@@ -164,7 +168,7 @@ func parseInstruction(t *tool.Param, instruction string) {
 		if len(match) < 3 {
 			continue
 		}
-		if parser, ok := instructionParsers[match[1]]; ok {
+		if parser, ok := paramIstructions[match[1]]; ok {
 			parser(t, match[2])
 		}
 	}
