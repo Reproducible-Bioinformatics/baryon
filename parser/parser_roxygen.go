@@ -101,6 +101,7 @@ var act map[string]Actor = map[string]Actor{
 		}
 		return nil
 	},
+	"returns": func(content string, t *tool.Tool) error { return nil },
 }
 
 var baryonNamespaceRegex = regexp.MustCompile(`\$B{([^}]*)}`)
