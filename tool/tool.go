@@ -207,3 +207,15 @@ func (p Param) Validate() error {
 	}
 	return nil
 }
+
+// Container tag set for the <data> and <collection> tag sets. The files and
+// collections created by tools as a result of their execution are named by
+// Galaxy. You specify the number and type of your output files using the
+// contained <data> and <collection> tags. These may be passed to your tool
+// executable through using line variables just like the parameters described
+// in the <inputs> documentation.
+//
+// https://docs.galaxyproject.org/en/master/dev/schema.html#tool-outputs
+type Outputs struct {
+	XMLName xml.Name `xml:"outputs"`
+}
