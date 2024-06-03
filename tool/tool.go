@@ -219,3 +219,14 @@ func (p Param) Validate() error {
 type Outputs struct {
 	XMLName xml.Name `xml:"outputs"`
 }
+
+// This tag set is contained within the <outputs> tag set, and it defines the
+// output data description for the files resulting from the tool’s execution.
+// The value of the attribute label can be acquired from input parameters or
+// metadata in the same way that the command line parameters are (discussed in
+// the <command> tag set section above).
+//
+// https://docs.galaxyproject.org/en/master/dev/schema.html#tool-outputs-data
+type Data struct {
+	XMLName xml.Name `xml:"data"`
+}
