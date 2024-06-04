@@ -27,6 +27,7 @@ type Tool struct {
 	Requirements   *Requirements   `xml:"requirements"`
 	Command        *Command        `xml:"command"`
 	Inputs         *Inputs         `xml:"inputs"`
+	Outputs        *Outputs        `xml:"outputs"`
 }
 
 // Container tag set for the <edam_topic> tags. A tool can have any number of

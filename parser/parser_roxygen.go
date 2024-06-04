@@ -4,6 +4,7 @@ import (
 	"baryon/tool"
 	"fmt"
 	"log"
+	"os"
 	"regexp"
 	"strings"
 )
@@ -101,7 +102,35 @@ var act map[string]Actor = map[string]Actor{
 		}
 		return nil
 	},
-	"returns": func(content string, t *tool.Tool) error { return nil },
+	"return": func(description string, t *tool.Tool) error {
+		baryonInstruction :=
+			baryonNamespaceRegex.FindStringSubmatch(description)
+		// Processing of the description string according to Galaxy's specs.
+		if len(baryonInstruction) > 0 {
+			description =
+				strings.Replace(description, baryonInstruction[0], "", -1)
+		}
+		description = strings.TrimSpace(description)
+		if len(baryonInstruction) < 1 {
+			return nil
+		}
+		instructions := strings.Split(baryonInstruction[1], ";")
+		for _, instruction := range instructions {
+			instruction = strings.TrimSpace(instruction)
+			match := instructionRegex.FindStringSubmatch(instruction)
+			if len(match) < 3 {
+				continue
+			}
+			parser, ok := returnInstructions[match[1]]
+			if !ok {
+				fmt.Fprintf(os.Stderr,
+					"Instruction \"%s\" not found. Continuing.\n", match[1])
+				continue
+			}
+			parser(t.Outputs, match[2])
+		}
+		return nil
+	},
 }
 
 var baryonNamespaceRegex = regexp.MustCompile(`\$B{([^}]*)}`)
@@ -159,6 +188,13 @@ var paramIstructions map[string]ParamFunction = map[string]ParamFunction{
 		}
 	},
 }
+
+// ReturnFunction used to provide functions for Baryon Namespaces used inside
+// roxygen2 return.
+type ReturnFunction func(*tool.Outputs, string)
+
+// returnInstruction is a map of functions used when parsing roxygen2 return.
+var returnInstructions map[string]ReturnFunction = map[string]ReturnFunction{}
 
 var instructionRegex = regexp.MustCompile(`((?:[[:alpha:]]|!)+)\ *(?:\(([^)]*)|)`)
 
