@@ -115,6 +115,9 @@ var act map[string]Actor = map[string]Actor{
 			return nil
 		}
 		instructions := strings.Split(baryonInstruction[1], ";")
+		if t.Outputs == nil {
+			t.Outputs = &tool.Outputs{}
+		}
 		for _, instruction := range instructions {
 			instruction = strings.TrimSpace(instruction)
 			match := instructionRegex.FindStringSubmatch(instruction)
@@ -194,7 +197,25 @@ var paramIstructions map[string]ParamFunction = map[string]ParamFunction{
 type ReturnFunction func(*tool.Outputs, string)
 
 // returnInstruction is a map of functions used when parsing roxygen2 return.
-var returnInstructions map[string]ReturnFunction = map[string]ReturnFunction{}
+var returnInstructions map[string]ReturnFunction = map[string]ReturnFunction{
+	"data": func(o *tool.Outputs, args string) {
+		argList := strings.Split(args, ",")
+		if len(argList) < 2 {
+			return
+		}
+		name := strings.TrimSpace(argList[0])
+		format := strings.TrimSpace(argList[1])
+		label := ""
+		if len(argList) > 2 {
+			label = strings.TrimSpace(argList[2])
+		}
+		o.Data = append(o.Data, tool.Data{
+			Format: format,
+			Name:   name,
+			Label:  label,
+		})
+	},
+}
 
 var instructionRegex = regexp.MustCompile(`((?:[[:alpha:]]|!)+)\ *(?:\(([^)]*)|)`)
 
