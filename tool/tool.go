@@ -219,6 +219,7 @@ func (p Param) Validate() error {
 // https://docs.galaxyproject.org/en/master/dev/schema.html#tool-outputs
 type Outputs struct {
 	XMLName xml.Name `xml:"outputs"`
+	Data    []Data
 }
 
 // This tag set is contained within the <outputs> tag set, and it defines the
@@ -230,4 +231,7 @@ type Outputs struct {
 // https://docs.galaxyproject.org/en/master/dev/schema.html#tool-outputs-data
 type Data struct {
 	XMLName xml.Name `xml:"data"`
+	Format  string   `xml:"format,omitempty,attr"`
+	Name    string   `xml:"name,omitempty,attr"`
+	Label   string   `xml:"label,omitempty,attr"`
 }
