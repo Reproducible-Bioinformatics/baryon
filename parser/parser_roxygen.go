@@ -209,6 +209,8 @@ func parseInstruction(t *tool.Param, instruction string) {
 		}
 		parser, ok := paramIstructions[match[1]]
 		if !ok {
+			fmt.Fprintf(os.Stderr,
+				"Instruction \"%s\" not found. Continuing.\n", match[1])
 			continue
 		}
 		parser(t, match[2])
