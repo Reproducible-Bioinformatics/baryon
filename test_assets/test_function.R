@@ -14,14 +14,8 @@
 #'
 #' @author Lorem Ipsum, Dolor Sit Amet, Lorem Sentence
 #'
-#' @examples
-#' \dontrun{
-#'  bulkClusters(group="docker", scratch.folderDOCKER="/sharedFolder/scratch", scratch.folderHOST="/home/user/scratch"
-#'  file="/home/user/temp/setA.csv",separator=",",
-#'  cl="/home/user/temp/Results/setA/3/setA_clustering.output.csv")
-#'  
-#'}
 #' @export
+#' @return $B{data(filename,fasta);}
 name <- function(variables) {
 
 }
