@@ -209,11 +209,17 @@ var returnInstructions map[string]ReturnFunction = map[string]ReturnFunction{
 		if len(argList) > 2 {
 			label = strings.TrimSpace(argList[2])
 		}
-		o.Data = append(o.Data, tool.Data{
+		newData := tool.Data{
 			Format: format,
 			Name:   name,
 			Label:  label,
-		})
+		}
+		err := newData.Validate()
+		if err != nil {
+			log.Fatalf("parser_roxygen, returnInstruction[\"data\"]: %v", err)
+			return
+		}
+		o.Data = append(o.Data, newData)
 	},
 }
 

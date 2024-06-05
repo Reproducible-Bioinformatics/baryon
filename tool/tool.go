@@ -235,3 +235,14 @@ type Data struct {
 	Name    string   `xml:"name,omitempty,attr"`
 	Label   string   `xml:"label,omitempty,attr"`
 }
+
+// Implements Validable.
+func (d Data) Validate() error {
+	if d.Name == "" {
+		return fmt.Errorf("Name has no value specified.")
+	}
+	if d.Format == "" {
+		return fmt.Errorf("Format has no value specified.")
+	}
+	return nil
+}
