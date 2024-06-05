@@ -20,6 +20,13 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	stat, err := file.Stat()
+	if err != nil {
+		log.Fatal(err)
+	}
+	if stat.Size() == 0 {
+		log.Fatal("No file provided.")
+	}
 	defer file.Close()
 	fileread, err := io.ReadAll(file)
 	if err != nil {
