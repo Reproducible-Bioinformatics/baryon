@@ -223,7 +223,26 @@ var paramIstructions map[string]ParamFunction = map[string]ParamFunction{
 
 // descriptionInstruction is a map of functions used when parsing roxygen2 return.
 var descriptionInstruction map[string]DescriptionFunction = map[string]DescriptionFunction{
-	"container": func(t *tool.Tool, s string) {},
+	"container": func(t *tool.Tool, args string) {
+		argList := strings.Split(args, ",")
+		if len(argList) < 1 {
+			return
+		}
+		container := tool.Container{
+			Type:  "docker",
+			Value: strings.TrimSpace(argList[0]),
+		}
+		if len(argList) > 1 {
+			container.Type = strings.TrimSpace(argList[1])
+		}
+		if err := container.Validate(); err != nil {
+			log.Fatalf("Error in descriptionInstruction, container: %v", err)
+		}
+		if t.Requirements == nil {
+			t.Requirements = &tool.Requirements{}
+		}
+		t.Requirements.Container = append(t.Requirements.Container, container)
+	},
 }
 
 // ReturnFunction used to provide functions for Baryon Namespaces used inside
