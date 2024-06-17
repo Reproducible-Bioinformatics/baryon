@@ -87,7 +87,36 @@ var act map[string]Actor = map[string]Actor{
 		return nil
 	},
 	"description": func(content string, t *tool.Tool) error {
+		baryonInstruction :=
+			baryonNamespaceRegex.FindStringSubmatch(content)
+		// Processing of the description string according to Galaxy's specs.
+		if len(baryonInstruction) > 0 {
+			content =
+				strings.Replace(content, baryonInstruction[0], "", -1)
+		}
+		content = strings.TrimSpace(content)
+		if len(baryonInstruction) < 1 {
+			return nil
+		}
 		t.Description = content
+		instructions := strings.Split(baryonInstruction[1], ";")
+		if t.Requirements == nil {
+			t.Requirements = &tool.Requirements{}
+		}
+		for _, instruction := range instructions {
+			instruction = strings.TrimSpace(instruction)
+			match := instructionRegex.FindStringSubmatch(instruction)
+			if len(match) < 3 {
+				continue
+			}
+			parser, ok := descriptionInstruction[match[1]]
+			if !ok {
+				fmt.Fprintf(os.Stderr,
+					"Instruction \"%s\" not found. Continuing.\n", match[1])
+				continue
+			}
+			parser(t, match[2])
+		}
 		return nil
 	},
 	"author": func(content string, t *tool.Tool) error {
@@ -191,6 +220,15 @@ var paramIstructions map[string]ParamFunction = map[string]ParamFunction{
 		}
 	},
 }
+
+// descriptionInstruction is a map of functions used when parsing roxygen2 return.
+var descriptionInstruction map[string]DescriptionFunction = map[string]DescriptionFunction{
+	"container": func(t *tool.Tool, s string) {},
+}
+
+// ReturnFunction used to provide functions for Baryon Namespaces used inside
+// roxygen2 return.
+type DescriptionFunction func(*tool.Tool, string)
 
 // ReturnFunction used to provide functions for Baryon Namespaces used inside
 // roxygen2 return.
