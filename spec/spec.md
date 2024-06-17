@@ -52,7 +52,7 @@ first-come-first-serve fashion.
 It is NOT RECOMMENDED to have the same instruction repeated in the same Baryon
 Namespace.
 
-## Instructions
+## Instructions - Parameters
 
 ### required
 
