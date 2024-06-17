@@ -128,3 +128,17 @@ $B{
     required;
 }
 ```
+
+## Instructions - Description
+
+### container
+
+`container` tags the container that will be used by tool. Accepts three parameters:  
+- `<name>` - the container name. Required.
+- `<type>` - the containerization technology that will be used. Optional, defaults to `docker`.
+
+Example(s):
+```
+${container(hello-world:latest,docker)}
+${container(hello-world:latest)}
+```
