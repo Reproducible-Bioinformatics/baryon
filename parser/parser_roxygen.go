@@ -229,7 +229,7 @@ var descriptionInstruction map[string]DescriptionFunction = map[string]Descripti
 			return
 		}
 		container := tool.Container{
-			Type:  "docker",
+			Type:  "docker", // This is the default for baryon.
 			Value: strings.TrimSpace(argList[0]),
 		}
 		if len(argList) > 1 {
