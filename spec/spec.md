@@ -142,3 +142,19 @@ Example(s):
 ${container(hello-world:latest,docker)}
 ${container(hello-world:latest)}
 ```
+
+## Instructions - Return
+
+### data
+
+`data` tags the return type(s) of the tool. Accepts three parameters:  
+- `<name>` - the filename of the data. Required.
+- `<format>` - the format of the data. Required.
+- `<label>` - the label for the data. Optional.
+The last element MAY have a delimiting comma.
+
+Example(s):
+```
+${data(testfile,fasta)}
+${data(testfile,fasta,A test file)}
+```
