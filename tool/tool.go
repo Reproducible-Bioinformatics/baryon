@@ -107,7 +107,7 @@ type Organization struct {
 type Requirements struct {
 	XMLName     xml.Name      `xml:"requirements"`
 	Requirement []Requirement `xml:"requirement,omitempty"`
-	Container   *Container    `xml:"container,omitempty"`
+	Container   []Container   `xml:"container,omitempty"`
 }
 
 // This tag set is contained within the <requirements> tag set. Third party
