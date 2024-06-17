@@ -136,6 +136,18 @@ type Container struct {
 	Value   string   `xml:",chardata"`
 }
 
+// Implements Validable.
+func (c Container) Validate() error {
+	var allowedType map[string]struct{} = map[string]struct{}{
+		"docker":      {},
+		"singularity": {},
+	}
+	if _, ok := allowedType[c.Type]; !ok {
+		return fmt.Errorf("Type \"%s\" is not an allowed type.", c.Type)
+	}
+	return nil
+}
+
 // This tag specifies how Galaxy should invoke the tool’s executable, passing
 // its required input parameter values (the command line specification links
 // the parameters supplied in the form with the actual tool executable).
