@@ -248,17 +248,29 @@ var descriptionInstruction map[string]DescriptionFunction = map[string]Descripti
 // ReturnFunction used to provide functions for Baryon Namespaces used inside
 // roxygen2 return.
 type DescriptionFunction func(*tool.Tool, string)
+// ToolFunction is used to provide functions for Baryon Namespaces used, for
+// example, inside roxygen2 tags.
+type ToolFunction func(t *tool.Tool, args string) error
 
 // ReturnFunction used to provide functions for Baryon Namespaces used inside
 // roxygen2 return.
 type ReturnFunction func(*tool.Outputs, string)
+// retrieveInstruction gets an instruction and instructions.
+// If it doesn't find the instruction inside the map, it returns an error.
+func retrieveInstruction(
+	instruction string,
+	instructions map[string]ToolFunction,
+) (ToolFunction, error) {
+	if instruction, ok := instructions[instruction]; ok {
+		return instruction, nil
+	}
+	return nil,
+		fmt.Errorf("evaluate: Instruction \"%s\" not found", instruction)
+}
 
 // returnInstruction is a map of functions used when parsing roxygen2 return.
-var returnInstructions map[string]ReturnFunction = map[string]ReturnFunction{
-	"data": func(o *tool.Outputs, args string) {
 		argList := strings.Split(args, ",")
 		if len(argList) < 2 {
-			return
 		}
 		name := strings.TrimSpace(argList[0])
 		format := strings.TrimSpace(argList[1])
