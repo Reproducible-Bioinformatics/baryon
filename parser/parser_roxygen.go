@@ -252,12 +252,9 @@ type DescriptionFunction func(*tool.Tool, string)
 // example, inside roxygen2 tags.
 type ToolFunction func(t *tool.Tool, args string) error
 
-// ReturnFunction used to provide functions for Baryon Namespaces used inside
-// roxygen2 return.
-type ReturnFunction func(*tool.Outputs, string)
-// retrieveInstruction gets an instruction and instructions.
+// retrieveParser gets an instruction and instructions.
 // If it doesn't find the instruction inside the map, it returns an error.
-func retrieveInstruction(
+func retrieveParser(
 	instruction string,
 	instructions map[string]ToolFunction,
 ) (ToolFunction, error) {
@@ -285,30 +282,38 @@ func retrieveInstruction(
 		}
 		err := newData.Validate()
 		if err != nil {
-			log.Fatalf("parser_roxygen, returnInstruction[\"data\"]: %v", err)
-			return
+			return fmt.Errorf("returnInstructions[\"data\"]: %v", err)
 		}
-		o.Data = append(o.Data, newData)
+		o.Outputs.Data = append(o.Outputs.Data, newData)
+		return nil
 	},
 }
 
+// instructionRegex is used to match a Baryon Instruction and obtain its name
+// and the argument list.
 var instructionRegex = regexp.MustCompile(`((?:[[:alpha:]]|!)+)\ *(?:\(([^)]*)|)`)
 
-// Parse instruction into a tool.Param.
-func parseInstruction(t *tool.Param, instruction string) {
-	instructions := strings.Split(instruction, ";")
+// Parse instruction into a tool.Tool.
+func parseInstruction(
+	t *tool.Tool,
+	instructionList string,
+	instructionMap map[string]ToolFunction,
+) error {
+	instructions := strings.Split(instructionList, ";")
 	for _, instruction := range instructions {
 		instruction = strings.TrimSpace(instruction)
 		match := instructionRegex.FindStringSubmatch(instruction)
 		if len(match) < 3 {
 			continue
 		}
-		parser, ok := paramIstructions[match[1]]
-		if !ok {
-			fmt.Fprintf(os.Stderr,
-				"Instruction \"%s\" not found. Continuing.\n", match[1])
-			continue
+		parser, err := retrieveParser(instruction, instructionMap)
+		if err != nil {
+			return fmt.Errorf("parseInstruction: %v", err)
 		}
-		parser(t, match[2])
+		err = parser(t, match[1])
+		if err != nil {
+			return fmt.Errorf("parseInstruction: %v", err)
+		}
 	}
+	return nil
 }
