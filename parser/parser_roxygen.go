@@ -134,7 +134,6 @@ var act map[string]Actor = map[string]Actor{
 			description =
 				strings.Replace(description, baryonInstruction[0], "", -1)
 		}
-		description = strings.TrimSpace(description)
 		err := parseInstruction(t, baryonInstruction[1], returnInstructions)
 		if err != nil {
 			return fmt.Errorf(`act["errror"]: %v`, err)
