@@ -93,25 +93,17 @@ var act map[string]Actor = map[string]Actor{
 		}
 		err := newParam.Validate()
 		if err != nil {
-			return fmt.Errorf("Error in act.param: %v", err)
+			return fmt.Errorf(`act["param"]: %v`, err)
 		}
 		t.Inputs.Param = append(t.Inputs.Param, newParam)
 		return nil
 	},
 	"description": func(description string, t *tool.Tool) error {
-		baryonInstruction :=
-			baryonNamespaceRegex.FindStringSubmatch(description)
-		// Processing of the description string according to Galaxy's specs.
-		if len(baryonInstruction) > 0 {
-			description =
-				strings.Replace(description, baryonInstruction[0], "", -1)
-		}
-		description = strings.TrimSpace(description)
-		t.Description = description
-		err := parseInstruction(t, baryonInstruction[1], descriptionInstruction)
+		cleanup, err := runInstruction(description, t, descriptionInstruction)
 		if err != nil {
-			return fmt.Errorf(`act["error"]: %v`, err)
+			return fmt.Errorf(`act["description"]: %v`, err)
 		}
+		t.Description = cleanup
 		return nil
 	},
 	"author": func(content string, t *tool.Tool) error {
@@ -127,19 +119,32 @@ var act map[string]Actor = map[string]Actor{
 		return nil
 	},
 	"return": func(description string, t *tool.Tool) error {
-		baryonInstruction :=
-			baryonNamespaceRegex.FindStringSubmatch(description)
-		// Processing of the description string according to Galaxy's specs.
-		if len(baryonInstruction) > 0 {
-			description =
-				strings.Replace(description, baryonInstruction[0], "", -1)
-		}
-		err := parseInstruction(t, baryonInstruction[1], returnInstructions)
+		_, err := runInstruction(description, t, returnInstructions)
 		if err != nil {
-			return fmt.Errorf(`act["errror"]: %v`, err)
+			return fmt.Errorf(`act["return"]: %v`, err)
 		}
 		return nil
 	},
+}
+
+// runInstruction runs the parser and
+func runInstruction(
+	description string,
+	t *tool.Tool,
+	instruct map[string]ToolFunction,
+) (string, error) {
+	baryonInstruction :=
+		baryonNamespaceRegex.FindStringSubmatch(description)
+	// Processing of the description string according to Galaxy's specs.
+	if len(baryonInstruction) > 0 {
+		description =
+			strings.Replace(description, baryonInstruction[0], "", -1)
+	}
+	err := parseInstruction(t, baryonInstruction[1], instruct)
+	if err != nil {
+		return "", fmt.Errorf(`runInstruction: %v`, err)
+	}
+	return strings.TrimSpace(description), nil
 }
 
 var baryonNamespaceRegex = regexp.MustCompile(`\$B{([^}]*)}`)
