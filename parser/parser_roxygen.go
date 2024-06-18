@@ -4,7 +4,6 @@ import (
 	"baryon/tool"
 	"fmt"
 	"log"
-	"os"
 	"regexp"
 	"strings"
 )
@@ -76,8 +75,21 @@ var act map[string]Actor = map[string]Actor{
 			Optional: true,
 		}
 		// Matched inside Baryon namespace.
-		if len(baryonInstruction) > 1 {
-			parseInstruction(&newParam, baryonInstruction[1])
+		if len(baryonInstruction) < 1 {
+			return nil
+		}
+		for _, option := range strings.Split(baryonInstruction[1], ";") {
+			option = strings.TrimSpace(option)
+			match := instructionRegex.FindStringSubmatch(option)
+			if len(match) < 3 {
+				continue
+			}
+			option = strings.TrimSpace(match[1])
+			if optionFunction, ok := paramOptions[option]; ok {
+				optionFunction(&newParam, match[2])
+			} else {
+				return fmt.Errorf(`act["param"]: option "%s" not found.`, option)
+			}
 		}
 		err := newParam.Validate()
 		if err != nil {
@@ -86,36 +98,19 @@ var act map[string]Actor = map[string]Actor{
 		t.Inputs.Param = append(t.Inputs.Param, newParam)
 		return nil
 	},
-	"description": func(content string, t *tool.Tool) error {
+	"description": func(description string, t *tool.Tool) error {
 		baryonInstruction :=
-			baryonNamespaceRegex.FindStringSubmatch(content)
+			baryonNamespaceRegex.FindStringSubmatch(description)
 		// Processing of the description string according to Galaxy's specs.
 		if len(baryonInstruction) > 0 {
-			content =
-				strings.Replace(content, baryonInstruction[0], "", -1)
+			description =
+				strings.Replace(description, baryonInstruction[0], "", -1)
 		}
-		content = strings.TrimSpace(content)
-		if len(baryonInstruction) < 1 {
-			return nil
-		}
-		t.Description = content
-		instructions := strings.Split(baryonInstruction[1], ";")
-		if t.Requirements == nil {
-			t.Requirements = &tool.Requirements{}
-		}
-		for _, instruction := range instructions {
-			instruction = strings.TrimSpace(instruction)
-			match := instructionRegex.FindStringSubmatch(instruction)
-			if len(match) < 3 {
-				continue
-			}
-			parser, ok := descriptionInstruction[match[1]]
-			if !ok {
-				fmt.Fprintf(os.Stderr,
-					"Instruction \"%s\" not found. Continuing.\n", match[1])
-				continue
-			}
-			parser(t, match[2])
+		description = strings.TrimSpace(description)
+		t.Description = description
+		err := parseInstruction(t, baryonInstruction[1], descriptionInstruction)
+		if err != nil {
+			return fmt.Errorf(`act["error"]: %v`, err)
 		}
 		return nil
 	},
@@ -140,26 +135,9 @@ var act map[string]Actor = map[string]Actor{
 				strings.Replace(description, baryonInstruction[0], "", -1)
 		}
 		description = strings.TrimSpace(description)
-		if len(baryonInstruction) < 1 {
-			return nil
-		}
-		instructions := strings.Split(baryonInstruction[1], ";")
-		if t.Outputs == nil {
-			t.Outputs = &tool.Outputs{}
-		}
-		for _, instruction := range instructions {
-			instruction = strings.TrimSpace(instruction)
-			match := instructionRegex.FindStringSubmatch(instruction)
-			if len(match) < 3 {
-				continue
-			}
-			parser, ok := returnInstructions[match[1]]
-			if !ok {
-				fmt.Fprintf(os.Stderr,
-					"Instruction \"%s\" not found. Continuing.\n", match[1])
-				continue
-			}
-			parser(t.Outputs, match[2])
+		err := parseInstruction(t, baryonInstruction[1], returnInstructions)
+		if err != nil {
+			return fmt.Errorf(`act["errror"]: %v`, err)
 		}
 		return nil
 	},
@@ -201,8 +179,8 @@ func isRoxygenLine(line string) (bool, []string) {
 // roxygen2 params.
 type ParamFunction func(*tool.Param, string)
 
-// paramIstructions is a map of function used to when parsing a roxygen2 param.
-var paramIstructions map[string]ParamFunction = map[string]ParamFunction{
+// paramOptions is a map of function used to when parsing a roxygen2 param.
+var paramOptions map[string]ParamFunction = map[string]ParamFunction{
 	"!":        func(t *tool.Param, arg string) { t.Optional = false },
 	"required": func(t *tool.Param, arg string) { t.Optional = false },
 	"type":     func(t *tool.Param, arg string) { t.Type = arg },
@@ -222,11 +200,11 @@ var paramIstructions map[string]ParamFunction = map[string]ParamFunction{
 }
 
 // descriptionInstruction is a map of functions used when parsing roxygen2 return.
-var descriptionInstruction map[string]DescriptionFunction = map[string]DescriptionFunction{
-	"container": func(t *tool.Tool, args string) {
+var descriptionInstruction map[string]ToolFunction = map[string]ToolFunction{
+	"container": func(t *tool.Tool, args string) error {
 		argList := strings.Split(args, ",")
 		if len(argList) < 1 {
-			return
+			return fmt.Errorf("descriptionInstruction[\"container\"]: less than 1 arg")
 		}
 		container := tool.Container{
 			Type:  "docker", // This is the default for baryon.
@@ -236,18 +214,16 @@ var descriptionInstruction map[string]DescriptionFunction = map[string]Descripti
 			container.Type = strings.TrimSpace(argList[1])
 		}
 		if err := container.Validate(); err != nil {
-			log.Fatalf("Error in descriptionInstruction, container: %v", err)
+			return fmt.Errorf("descriptionInstruction[\"container\"]: %v", err)
 		}
 		if t.Requirements == nil {
 			t.Requirements = &tool.Requirements{}
 		}
 		t.Requirements.Container = append(t.Requirements.Container, container)
+		return nil
 	},
 }
 
-// ReturnFunction used to provide functions for Baryon Namespaces used inside
-// roxygen2 return.
-type DescriptionFunction func(*tool.Tool, string)
 // ToolFunction is used to provide functions for Baryon Namespaces used, for
 // example, inside roxygen2 tags.
 type ToolFunction func(t *tool.Tool, args string) error
@@ -266,8 +242,11 @@ func retrieveParser(
 }
 
 // returnInstruction is a map of functions used when parsing roxygen2 return.
+var returnInstructions map[string]ToolFunction = map[string]ToolFunction{
+	"data": func(o *tool.Tool, args string) error {
 		argList := strings.Split(args, ",")
 		if len(argList) < 2 {
+			return fmt.Errorf("returnInstructions[\"data\"]: less than 2 args")
 		}
 		name := strings.TrimSpace(argList[0])
 		format := strings.TrimSpace(argList[1])
@@ -283,6 +262,9 @@ func retrieveParser(
 		err := newData.Validate()
 		if err != nil {
 			return fmt.Errorf("returnInstructions[\"data\"]: %v", err)
+		}
+		if o.Outputs == nil {
+			o.Outputs = &tool.Outputs{}
 		}
 		o.Outputs.Data = append(o.Outputs.Data, newData)
 		return nil
@@ -306,11 +288,11 @@ func parseInstruction(
 		if len(match) < 3 {
 			continue
 		}
-		parser, err := retrieveParser(instruction, instructionMap)
+		parser, err := retrieveParser(strings.TrimSpace(match[1]), instructionMap)
 		if err != nil {
 			return fmt.Errorf("parseInstruction: %v", err)
 		}
-		err = parser(t, match[1])
+		err = parser(t, match[2])
 		if err != nil {
 			return fmt.Errorf("parseInstruction: %v", err)
 		}
