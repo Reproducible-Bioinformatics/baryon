@@ -226,6 +226,18 @@ var descriptionInstruction map[string]ToolFunction = map[string]ToolFunction{
 		t.Requirements.Container = append(t.Requirements.Container, container)
 		return nil
 	},
+	"command": func(t *tool.Tool, arg string) error {
+		arg = strings.TrimSpace(arg)
+		if len(arg) == 0 {
+			return fmt.Errorf(
+				`descriptionInstruction["command"]: argument not present.`)
+		}
+		if t.Command == nil {
+			t.Command = &tool.Command{}
+		}
+		t.Command.Value = arg
+		return nil
+	},
 }
 
 // ToolFunction is used to provide functions for Baryon Namespaces used, for
