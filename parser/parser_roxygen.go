@@ -135,13 +135,13 @@ func runInstruction(
 ) (string, error) {
 	baryonInstruction :=
 		baryonNamespaceRegex.FindStringSubmatch(description)
-	// Processing of the description string according to Galaxy's specs.
-	if len(baryonInstruction) > 0 {
-		description =
-			strings.Replace(description, baryonInstruction[0], "", -1)
+	if len(baryonInstruction) < 1 {
+		return strings.TrimSpace(description), nil
 	}
-	err := parseInstruction(t, baryonInstruction[1], instruct)
-	if err != nil {
+	// Processing of the description string according to Galaxy's specs.
+	description =
+		strings.Replace(description, baryonInstruction[0], "", -1)
+	if err := parseInstruction(t, baryonInstruction[1], instruct); err != nil {
 		return "", fmt.Errorf(`runInstruction: %v`, err)
 	}
 	return strings.TrimSpace(description), nil
