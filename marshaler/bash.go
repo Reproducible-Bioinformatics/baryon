@@ -56,9 +56,31 @@ func (b BashMarshaler) obtainType(typeName string, value string) (*BashType, err
 
 // Marshal implements Marshaler.
 func (b BashMarshaler) Marshal(tool *tool.Tool) ([]byte, error) {
-	buffer := []byte("#!/bin/bash\n")
+	buffer := []byte{}
+	echoDescription := []byte{}
 
-	if out, err := b.marshalDescription(tool.Description); err != nil {
+	if out, err := b.marshalDescription(`echo "%s"
+`, tool.Description); err != nil {
+		return nil, fmt.Errorf("[bashMarshaler.Marshal]: %v", err)
+	} else {
+		echoDescription = out
+	}
+	buffer = append(buffer, []byte(fmt.Sprintf(`#!/bin/bash
+
+usage() {
+	%s
+	echo "$0 usage:" && grep "\-.*)\ #" $0; exit 0;
+}
+[ $# -eq 0 ] && usage
+`, echoDescription))...)
+
+	if out, err := b.marshalDescription("# %s\n", tool.Description); err != nil {
+		return nil, fmt.Errorf("[bashMarshaler.Marshal]: %v", err)
+	} else {
+		buffer = append(buffer, out...)
+	}
+
+	if out, err := b.marshalInputs(tool.Inputs); err != nil {
 		return nil, fmt.Errorf("[bashMarshaler.Marshal]: %v", err)
 	} else {
 		buffer = append(buffer, out...)
