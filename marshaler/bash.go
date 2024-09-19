@@ -97,6 +97,17 @@ func (b BashMarshaler) marshalDescription(format string, description string) ([]
 	}
 	return buffer, nil
 }
+
+func (b BashMarshaler) marshalInputs(inputs *tool.Inputs) ([]byte, error) {
+	buffer := []byte("\n# Inputs\n")
+	if out, err := b.processParams(inputs.Param); err != nil {
+		return nil, fmt.Errorf("[bashMarshaler.marshalInputs]: %v", err)
+	} else {
+		buffer = append(buffer, out...)
+	}
+	return append(buffer, []byte("\n# End Inputs\n")...), nil
+}
+
 func (b BashMarshaler) processParams(params []tool.Param) ([]byte, error) {
 	if len(params) == 0 {
 		return nil, nil
