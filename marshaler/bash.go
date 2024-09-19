@@ -88,11 +88,12 @@ usage() {
 
 	return buffer, nil
 }
-func (b BashMarshaler) marshalDescription(description string) ([]byte, error) {
+
+func (b BashMarshaler) marshalDescription(format string, description string) ([]byte, error) {
 	buffer := []byte("\n")
 	lines := strings.Split(description, "\n")
 	for _, l := range lines {
-		buffer = append(buffer, fmt.Sprintf("# %s\n", l)...)
+		buffer = append(buffer, fmt.Sprintf(format, l)...)
 	}
 	return buffer, nil
 }
