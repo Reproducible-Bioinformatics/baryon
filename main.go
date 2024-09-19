@@ -1,6 +1,7 @@
 package main
 
 import (
+	"baryon/marshaler"
 	"baryon/parser"
 	"encoding/xml"
 	"fmt"
@@ -36,7 +37,20 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	output, err := xml.MarshalIndent(tool, "", "\t")
+	output, err := func() ([]byte, error) {
+		var mode string
+		if len(argsWithoutProg) > 1 {
+			mode = argsWithoutProg[1]
+		}
+		switch mode {
+		case "bash":
+			out, err := marshaler.BashMarshaler{}.Marshal(tool)
+			return out, err
+		default:
+			out, err := xml.MarshalIndent(tool, "", "\t")
+			return out, err
+		}
+	}()
 	if err != nil {
 		log.Fatal(err)
 	}
