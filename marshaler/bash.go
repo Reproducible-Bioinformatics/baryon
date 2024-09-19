@@ -16,6 +16,44 @@ type BashType struct {
 	typeCheck string
 }
 
+// Obtain a BashType from a typeName of a tool.Param.
+func (b BashMarshaler) obtainType(typeName string, value string) (*BashType, error) {
+	switch typeName {
+	case "text", "baseurl", "color", "file", "ftpfile", "hidden", "hidden_data":
+		return &BashType{
+			typeName:  "string",
+			typeCheck: fmt.Sprintf("[[ ! -n $%s ]]", value),
+		}, nil
+	case "integer":
+		return &BashType{
+			typeName:  "int",
+			typeCheck: fmt.Sprintf("[[ ! $%s =~ ^-?[0-9]+$ ]]", value),
+		}, nil
+	case "float":
+		return &BashType{
+			typeName:  "float",
+			typeCheck: fmt.Sprintf("[[ ! $%s =~ ^-?[0-9]*\\.?[0-9]+$ ]]", value),
+		}, nil
+	case "boolean":
+		return &BashType{
+			typeName:  "bool",
+			typeCheck: fmt.Sprintf("[[ ! $%s == \"true\" && ! $%s == \"false\" ]]", value, value),
+		}, nil
+	case "genomebuild", "select":
+		return &BashType{
+			typeName:  "enum",
+			typeCheck: fmt.Sprintf("[[ $%s == \"\" ]]", value),
+		}, nil
+	case "data_column", "data", "data_collection", "drill_down":
+		return &BashType{
+			typeName:  "file",
+			typeCheck: fmt.Sprintf("[[ ! -f $%s ]]", value),
+		}, nil
+	default:
+		return nil, fmt.Errorf("unknown type: %s", typeName)
+	}
+}
+
 // Marshal implements Marshaler.
 func (b BashMarshaler) Marshal(tool *tool.Tool) ([]byte, error) {
 	buffer := []byte("#!/bin/bash\n")
