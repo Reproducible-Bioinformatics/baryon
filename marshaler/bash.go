@@ -97,5 +97,48 @@ func (b BashMarshaler) marshalDescription(format string, description string) ([]
 	}
 	return buffer, nil
 }
+func (b BashMarshaler) marshalParam(param *tool.Param) ([]byte, error) {
+	if param == nil {
+		return nil, fmt.Errorf("[bashMarshaler.marshalParam]: Empty field")
+	}
+
+	bashType, err := b.obtainType(param.Type, param.Name)
+	if err != nil {
+		return nil, fmt.Errorf("[BashMarshaler.marshalParam]: %v", err)
+	}
+	buffer := []byte(fmt.Sprintf("## %s", param.Name))
+
+	// Obtain from a parameter
+	buffer = append(buffer, []byte(fmt.Sprintf(`
+%s=""
+
+for arg in "$@"; do
+	case $arg in
+		--%s=*) # %s
+		%s="${arg#*=}"
+		shift
+		;;
+	esac
+done
+
+if %s; then
+	echo "%s is not of type %s"
+	%s
+fi
+`,
+		param.Name,
+		param.Name,
+		param.Help,
+		param.Name,
+		bashType.typeCheck,
+		param.Name,
+		bashType.typeName,
+		func() string {
+			if param.Optional {
+				return fmt.Sprintf(`echo "WARN: %s is optional"`, param.Name)
+			}
+			return fmt.Sprintf(`exit 1`)
+		}(),
+	))...)
 	return buffer, nil
 }
