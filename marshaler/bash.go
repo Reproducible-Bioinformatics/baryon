@@ -97,6 +97,21 @@ func (b BashMarshaler) marshalDescription(format string, description string) ([]
 	}
 	return buffer, nil
 }
+func (b BashMarshaler) processParams(params []tool.Param) ([]byte, error) {
+	if len(params) == 0 {
+		return nil, nil
+	}
+	marshaledParam, err := b.marshalParam(&params[0])
+	if err != nil {
+		return nil, fmt.Errorf("[bashMarshaler.processParams]: %v", err)
+	}
+	remainingBytes, err := b.processParams(params[1:])
+	if err != nil {
+		return nil, fmt.Errorf("[bashMarshaler.processParams]: %v", err)
+	}
+	return append(marshaledParam, remainingBytes...), nil
+}
+
 func (b BashMarshaler) marshalParam(param *tool.Param) ([]byte, error) {
 	if param == nil {
 		return nil, fmt.Errorf("[bashMarshaler.marshalParam]: Empty field")
