@@ -11,6 +11,11 @@ var _ Marshaler = (*BashMarshaler)(nil)
 
 type BashMarshaler struct{}
 
+type BashType struct {
+	typeName  string
+	typeCheck string
+}
+
 // Marshal implements Marshaler.
 func (b BashMarshaler) Marshal(tool *tool.Tool) ([]byte, error) {
 	buffer := []byte("#!/bin/bash\n")
