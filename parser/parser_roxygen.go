@@ -233,7 +233,7 @@ var descriptionInstruction map[string]ToolFunction = map[string]ToolFunction{
 				`descriptionInstruction["command"]: argument not present.`)
 		}
 		if t.Command == nil {
-			t.Command = &tool.Command{}
+			t.Command = &tool.Command{Value: arg}
 		}
 		t.Command.Value = arg
 		return nil
