@@ -86,6 +86,15 @@ usage() {
 		buffer = append(buffer, out...)
 	}
 
+	if out, err := b.marshalContainerAndCommand(
+		tool.Requirements.Container,
+		*tool.Command,
+	); err != nil {
+		return nil, fmt.Errorf("[bashMarshaler.Marshal]: %v", err)
+	} else {
+		buffer = append(buffer, out...)
+	}
+
 	return buffer, nil
 }
 
