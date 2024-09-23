@@ -168,3 +168,22 @@ fi
 	))...)
 	return buffer, nil
 }
+
+func (b BashMarshaler) marshalContainerAndCommand(
+	containers []tool.Container,
+	command tool.Command,
+) ([]byte, error) {
+	buffer := []byte("# Command\n")
+	for _, container := range containers {
+		if container.Type != "docker" {
+			return nil, fmt.Errorf("Only docker is supported")
+		}
+		buffer = append(buffer, []byte(
+			fmt.Sprintf("docker run %s --rm %s '%s'\n",
+				"",
+				container.Value,
+				command.Value,
+			))...)
+	}
+	return buffer, nil
+}
