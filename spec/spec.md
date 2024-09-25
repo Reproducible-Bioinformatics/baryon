@@ -143,6 +143,17 @@ ${container(hello-world:latest,docker)}
 ${container(hello-world:latest)}
 ```
 
+### command
+
+`command` specifies the command that will be used by tool. Accepts one parameter:  
+- `<command>` - the command to run. Required.
+
+Example(s):
+```
+${command(echo "Hello, world!")}
+${command(echo $variable)}
+```
+
 ## Instructions - Return
 
 ### data
