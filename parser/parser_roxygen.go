@@ -254,7 +254,7 @@ var descriptionInstruction map[string]ToolFunction = map[string]ToolFunction{
 			GuestPath: strings.TrimSpace(argList[1]),
 		}
 		for _, container := range t.Requirements.Container {
-			container.Volumes = volMapping
+			container.Volumes = append(container.Volumes, volMapping)
 		}
 		return nil
 	},

@@ -134,7 +134,7 @@ type Container struct {
 	XMLName xml.Name `xml:"container"`
 	Type    string   `xml:"type,attr"`
 	Value   string   `xml:",chardata"`
-	Volumes VolumeMapping
+	Volumes []VolumeMapping
 }
 
 // Implements Validable.
