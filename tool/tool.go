@@ -134,6 +134,7 @@ type Container struct {
 	XMLName xml.Name `xml:"container"`
 	Type    string   `xml:"type,attr"`
 	Value   string   `xml:",chardata"`
+	Volumes VolumeMapping
 }
 
 // Implements Validable.
@@ -257,4 +258,11 @@ func (d Data) Validate() error {
 		return fmt.Errorf("Format has no value specified.")
 	}
 	return nil
+}
+
+// TODO: Integrate this with galaxy
+//   - research tool volume mapping.
+type VolumeMapping struct {
+	HostPath  string
+	GuestPath string
 }
