@@ -253,8 +253,13 @@ var descriptionInstruction map[string]ToolFunction = map[string]ToolFunction{
 			HostPath:  strings.TrimSpace(argList[0]),
 			GuestPath: strings.TrimSpace(argList[1]),
 		}
-		for _, container := range t.Requirements.Container {
-			container.Volumes = append(container.Volumes, volMapping)
+		if len(t.Requirements.Container) == 0 {
+			return fmt.Errorf(
+				`descriptionInstruction["volume"]: there's no container.`)
+		}
+		for i := range t.Requirements.Container {
+			t.Requirements.Container[i].Volumes =
+				append(t.Requirements.Container[i].Volumes, volMapping)
 		}
 		return nil
 	},
