@@ -238,6 +238,26 @@ var descriptionInstruction map[string]ToolFunction = map[string]ToolFunction{
 		t.Command.Value = arg
 		return nil
 	},
+	"volume": func(t *tool.Tool, args string) error {
+		args = strings.TrimSpace(args)
+		if len(args) == 0 {
+			return fmt.Errorf(
+				`descriptionInstruction["volume"]: argument not present.`)
+		}
+		argList := strings.Split(args, ":")
+		if len(argList) != 2 {
+			return fmt.Errorf(
+				`descriptionInstruction["volume"]: volume should contain 2 arguments.`)
+		}
+		volMapping := tool.VolumeMapping{
+			HostPath:  strings.TrimSpace(argList[0]),
+			GuestPath: strings.TrimSpace(argList[1]),
+		}
+		for _, container := range t.Requirements.Container {
+			container.Volumes = volMapping
+		}
+		return nil
+	},
 }
 
 // ToolFunction is used to provide functions for Baryon Namespaces used, for
