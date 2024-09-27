@@ -189,10 +189,20 @@ func (b BashMarshaler) marshalContainerAndCommand(
 		}
 		buffer = append(buffer, []byte(
 			fmt.Sprintf("docker run %s --rm %s '%s'\n",
-				"",
+				b.marshalVolumes(container.Volumes),
 				container.Value,
 				command.Value,
 			))...)
 	}
 	return buffer, nil
+}
+
+func (b BashMarshaler) marshalVolumes(mappings []tool.VolumeMapping) string {
+	buffer := []byte{}
+	for _, mapping := range mappings {
+		buffer = append(buffer, []byte(fmt.Sprintf(
+			"-v %s:%s", mapping.HostPath, mapping.GuestPath,
+		))...)
+	}
+	return string(buffer)
 }
