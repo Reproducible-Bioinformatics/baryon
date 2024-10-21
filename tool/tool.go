@@ -216,7 +216,7 @@ func (p Param) Validate() error {
 	if _, ok := allowedType[p.Type]; !ok {
 		return fmt.Errorf("Type \"%s\" is not an allowed type.", p.Type)
 	}
-	if !p.Optional && p.Value == "" {
+	if p.Optional && p.Value == "" {
 		return fmt.Errorf("Non optional parameter has no value specified.")
 	}
 	return nil
