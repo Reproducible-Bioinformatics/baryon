@@ -85,7 +85,9 @@ usage() {
 	} else {
 		buffer = append(buffer, out...)
 	}
-
+	if tool.Command == nil {
+		return nil, fmt.Errorf("[bashMarshaler.Marshal]: command not specified.")
+	}
 	if out, err := b.marshalContainerAndCommand(
 		tool.Requirements.Container,
 		*tool.Command,
