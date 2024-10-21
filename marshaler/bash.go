@@ -190,7 +190,7 @@ func (b BashMarshaler) marshalContainerAndCommand(
 			return nil, fmt.Errorf("Only docker is supported")
 		}
 		buffer = append(buffer, []byte(
-			fmt.Sprintf("docker run %s --rm %s '%s'\n",
+			fmt.Sprintf("docker run %s --rm %s %s\n",
 				b.marshalVolumes(container.Volumes),
 				container.Value,
 				command.Value,
