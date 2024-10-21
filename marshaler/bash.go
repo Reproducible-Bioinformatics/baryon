@@ -203,7 +203,7 @@ func (b BashMarshaler) marshalVolumes(mappings []tool.VolumeMapping) string {
 	buffer := []byte{}
 	for _, mapping := range mappings {
 		buffer = append(buffer, []byte(fmt.Sprintf(
-			"-v %s:%s", mapping.HostPath, mapping.GuestPath,
+			" -v %s:%s", mapping.HostPath, mapping.GuestPath,
 		))...)
 	}
 	return string(buffer)
