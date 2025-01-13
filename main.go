@@ -46,6 +46,9 @@ func main() {
 		case "bash":
 			out, err := marshaler.BashMarshaler{}.Marshal(tool)
 			return out, err
+		case "python":
+			out, err := marshaler.PythonMarshaler{}.Marshal(tool)
+			return out, err
 		default:
 			out, err := xml.MarshalIndent(tool, "", "\t")
 			return out, err
