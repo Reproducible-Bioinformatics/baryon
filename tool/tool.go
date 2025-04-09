@@ -28,6 +28,8 @@ type Tool struct {
 	Command        *Command        `xml:"command"`
 	Inputs         *Inputs         `xml:"inputs"`
 	Outputs        *Outputs        `xml:"outputs"`
+	Id             string          `xml:"id,attr"`
+	Name           string          `xml:"name,attr"`
 }
 
 // Container tag set for the <edam_topic> tags. A tool can have any number of
@@ -175,9 +177,9 @@ type Inputs struct {
 // https://docs.galaxyproject.org/en/latest/dev/schema.html#tool-inputs-param
 type Param struct {
 	XMLName         xml.Name `xml:"param"`
-	Type            string   `xml:"type"`
-	Name            string   `xml:"name,omitempty"`
-	Value           string   `xml:"value,omitempty"`
+	Type            string   `xml:"type,attr"`
+	Name            string   `xml:"name,omitempty,attr"`
+	Value           string   `xml:"value,omitempty,attr"`
 	Options         []Option `xml:"option"`
 	Argument        string   `xml:"argument,omitempty"`
 	Label           string   `xml:"label,omitempty"`

@@ -205,6 +205,22 @@ var paramOptions map[string]ParamFunction = map[string]ParamFunction{
 
 // descriptionInstruction is a map of functions used when parsing roxygen2 return.
 var descriptionInstruction map[string]ToolFunction = map[string]ToolFunction{
+	"id": func(t *tool.Tool, args string) error {
+		argList := strings.Split(args, ",")
+		if len(argList) != 1 {
+			return fmt.Errorf("descriptionInstruction[\"id\"]: exactly 1 arg")
+		}
+		t.Id = argList[0]
+		return nil
+	},
+	"name": func(t *tool.Tool, args string) error {
+		argList := strings.Split(args, ",")
+		if len(argList) != 1 {
+			return fmt.Errorf("descriptionInstruction[\"name\"]: exactly 1 arg")
+		}
+		t.Name = argList[0]
+		return nil
+	},
 	"container": func(t *tool.Tool, args string) error {
 		argList := strings.Split(args, ",")
 		if len(argList) < 1 {
